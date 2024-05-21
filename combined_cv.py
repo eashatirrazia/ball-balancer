@@ -163,7 +163,8 @@ while True:
     cv2.putText(roi, "(X, Y) = ({}, {})".format(centroid[0], centroid[1]), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
     cv2.circle(roi, tuple(centroid), 5, (0, 255, 0), 2)
     
-    ref_origin = tag_corners[REF_TAG_ID]
+    # ref_origin = tag_corners[REF_TAG_ID]
+    ref_origin = box_center
     relative_centroid = (centroid[0] - ref_origin[0]+ x, centroid[1] - ref_origin[1]+y)
     
     # draw vectors on the frame
