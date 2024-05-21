@@ -1,9 +1,6 @@
 import RPi.GPIO as GPIO
 import time
 
-GPIO.setmode(GPIO.BOARD)
-GPIO.setwarnings(False)
-		
 def delay_ms(n):
     time.sleep(n*1e-6)
 
@@ -41,60 +38,57 @@ class Stepper:
 
 	def step(self, delay=None):
 		delay = delay if delay else self.delay
-		high(STEP)
+		high(self.step_pin)
 		delay_ms(delay)
-		low(STEP)
+		low(self.step_pin)
 		delay_ms(delay)
 
 	def move_to(self,position):
 		assert(self.delay)
-		p1=(position-self.position)*0.1 
-		p2=(position-self.position)*0.9 
-		init_delay = 50
-		slope1 = (self.delay-init_delay)/p1
-		print("Slope1:", slope1)
-		slope2 = (self.delay-init_delay)/(p2-position+self.position)
-		print("Slope2:", slope2)
-		p1 += self.position
-		p2 += self.position
 		self.set_direction(1 if position > self.position else 0)
-		direction = 1 if position > self.position else -1
-		print("loop1")
-		while self.position != p1:
-			self.step(init_delay)
-			init_delay = init_delay + direction*slope1
-			self.position += 1 if position > self.position else -1
-			print(self.position, init_delay)
-		
-		print("loop2")
-		while self.position != p2:
-			self.step()
-			self.position += 1 if position > self.position else -1
-			print(self.position, self.delay)
-		
-		print("loop3")	
-		init_delay = self.delay
 		while self.position != position:
-			self.step(init_delay)
-			init_delay = init_delay + direction*slope2
-			self.position += 1 if position > self.position else -1
-			print(self.position, init_delay)
-		
-		print(f"Final Delay: {init_delay}")
-		
-DIR = 8
-STEP = 10
-stepsPerRevolution = 3200
+				self.step()
+				self.position += 1 if position > self.position else -1
 
-#stepper = Stepper(STEP, DIR)
-#stepper.set_speed(1/20)
+if __name__ == "__main__":
+	GPIO.setmode(GPIO.BOARD)
+	GPIO.setwarnings(False)
+	DIR = 8
+	STEP = 10
+	stepsPerRevolution = 3200
 
-#stepper.move_to(6400*2)
-time.sleep(1)
+	stepper = Stepper(STEP, DIR)
+	stepper.set_speed(1/100)
 
-#stepper.move_to(3200)
-#time.sleep(1)
+	stepper.move_to(800)
+	time.sleep(1)
 
-#stepper.move_to(0)
-#time.sleep(1)
+	stepper.move_to(0)
+	time.sleep(1)
+	
+	DIR = 3
+	STEP = 5
+	stepsPerRevolution = 3200
+
+	stepper = Stepper(STEP, DIR)
+	stepper.set_speed(1/100)
+
+	stepper.move_to(800)
+	time.sleep(1)
+
+	stepper.move_to(0)
+	time.sleep(1)
+	
+	DIR = 11
+	STEP = 13
+	stepsPerRevolution = 3200
+
+	stepper = Stepper(STEP, DIR)
+	stepper.set_speed(1/100)
+
+	stepper.move_to(800)
+	time.sleep(1)
+
+	stepper.move_to(0)
+	time.sleep(1)
 
