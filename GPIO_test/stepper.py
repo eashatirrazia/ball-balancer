@@ -50,7 +50,7 @@ class Stepper:
 		assert(self.delay)
 		p1=(position-self.position)*0.1 
 		p2=(position-self.position)*0.9 
-		init_delay = 200
+		init_delay = 50
 		slope1 = (self.delay-init_delay)/p1
 		print("Slope1:", slope1)
 		slope2 = (self.delay-init_delay)/(p2-position+self.position)
@@ -86,10 +86,10 @@ DIR = 8
 STEP = 10
 stepsPerRevolution = 3200
 
-stepper = Stepper(STEP, DIR)
-stepper.set_speed(1/100)
+#stepper = Stepper(STEP, DIR)
+#stepper.set_speed(1/20)
 
-stepper.move_to(1000)
+#stepper.move_to(6400*2)
 time.sleep(1)
 
 #stepper.move_to(3200)
