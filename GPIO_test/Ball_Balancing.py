@@ -1,7 +1,11 @@
 import time
 import math
-from RpiMotorLib import RpiMotorLib
+#from RpiMotorLib import RpiMotorLib
 import RPi.GPIO as GPIO
+from stepper import Stepper
+
+GPIO.setmode(GPIO.BOARD)
+GPIO.setwarnings(False)
 
 # Constants
 A = 0
@@ -57,20 +61,21 @@ class Machine:
 
 # Define pins for stepper motors
 stepper_pins = {
-    'A': (17, 18),
-    'B': (22, 23),
-    'C': (24, 25)
+    'A': (8, 10),
+    'B': (3, 5),
+    'C': (11, 13)
 }
 
 # Initialize the steppers
-stepperA = RpiMotorLib.A4988Nema(
-    stepper_pins['A'][0], stepper_pins['A'][1], (False, False, False), "A4988")
-stepperB = RpiMotorLib.A4988Nema(
-    stepper_pins['B'][0], stepper_pins['B'][1], (False, False, False), "A4988")
-stepperC = RpiMotorLib.A4988Nema(
-    stepper_pins['C'][0], stepper_pins['C'][1], (False, False, False), "A4988")
+stepperA = Stepper(stepper_pins['A'][1], stepper_pins['A'][0])
+stepperB = Stepper(stepper_pins['B'][1], stepper_pins['B'][0])
+stepperC = Stepper(stepper_pins['C'][1], stepper_pins['C'][0])
 
 steppers = [stepperA, stepperB, stepperC]
+
+steppers[0].set_speed(1/200)
+steppers[1].set_speed(1/200)
+steppers[2].set_speed(1/200)
 
 # Initialize variables
 angOrig = 206.662752199
@@ -103,14 +108,14 @@ def moveTo(hz, nx, ny):
                 (angOrig - machine.theta(i, hz, nx, ny)) * angToStep)
 
         for i, stepper in enumerate(steppers):
-            stepper.motor_go(False, "Full", abs(pos[i]), 0.001, False, 0.05)
+            stepper.move_to(abs(pos[i]))
 
     else:
         for i in range(3):
             pos[i] = round((angOrig - machine.theta(i, hz, 0, 0)) * angToStep)
 
         for i, stepper in enumerate(steppers):
-            stepper.motor_go(False, "Full", abs(pos[i]), 0.001, False, 0.05)
+            stepper.move_to(abs(pos[i]))
 
 # PID control function
 
@@ -133,7 +138,7 @@ def PID(setpointX, setpointY):
 
         for i in range(3):
             speedPrev = speed[i]
-            speed[i] = steppers[i].motor_position
+            speed[i] = steppers[i].position
             speed[i] = abs(speed[i] - pos[i]) * ks
             speed[i] = max(min(speed[i], speedPrev + 200), speedPrev - 200)
             speed[i] = max(min(speed[i], 1000), 0)
@@ -152,17 +157,16 @@ def PID(setpointX, setpointY):
         moveTo(4.25, -out[0], -out[1])
 
 
-# Main program
-if __name__ == "__main__":
-    machine = Machine(2, 3.125, 1.75, 3.669291339)
+machine = Machine(2, 3.125, 1.75, 3.669291339)
 
-    GPIO.setmode(GPIO.BCM)
-    ENA = 0
-    GPIO.setup(ENA, GPIO.OUT)
-    GPIO.output(ENA, GPIO.HIGH)
-    time.sleep(1)
-    GPIO.output(ENA, GPIO.LOW)
-    moveTo(4.25, 0, 0)
+#ENA = 0
+#GPIO.setup(ENA, GPIO.OUT)
+#GPIO.output(ENA, GPIO.HIGH)
+#time.sleep(1)
+#GPIO.output(ENA, GPIO.LOW)
 
-    while True:
-        PID(0, 0)
+moveTo(5.25, 0.5, 0.9)
+#steppers[0].set_speed(1/20)
+#steppers[0].move_to(6400)
+#while True:
+    #PID(0, 0)
